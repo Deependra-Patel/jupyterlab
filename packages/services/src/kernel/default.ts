@@ -30,7 +30,7 @@ import { PageConfig } from '@jupyterlab/coreutils';
 // Stub for requirejs.
 declare let requirejs: any;
 
-const KERNEL_INFO_TIMEOUT = 3000;
+const KERNEL_INFO_TIMEOUT = 10000;
 const RESTARTING_KERNEL_SESSION = '_RESTARTING_';
 const STARTING_KERNEL_SESSION = '';
 
@@ -1577,10 +1577,12 @@ export class KernelConnection implements Kernel.IKernelConnection {
           }
         };
         void p.then(sendPendingOnce);
-        // FIXME: if sent while zmq subscriptions are not established,
-        // kernelInfo may not resolve, so use a timeout to ensure we don't hang forever.
-        // It may be preferable to retry kernelInfo rather than give up after one timeout.
-        let timeoutHandle = setTimeout(sendPendingOnce, KERNEL_INFO_TIMEOUT);
+        let timeoutHandle = setTimeout(() => {
+          // `kernel_info_reply` is a critical first message needed for kernel to connect
+          // Explicitly closing the connection after timeout forces a resend of `kernel_info_request`
+          console.error("Explicitly closing socket")
+          this._ws?.close()
+        }, KERNEL_INFO_TIMEOUT);
       } else {
         // If the connection is down, then we do not know what is happening
         // with the kernel, so set the status to unknown.
@@ -1837,7 +1839,7 @@ export class KernelConnection implements Kernel.IKernelConnection {
   private _kernelAPIClient: Kernel.IKernelAPIClient;
   private _kernelSpecAPIClient: KernelSpec.IKernelSpecAPIClient;
   private _username = '';
-  private _reconnectLimit = 7;
+  private _reconnectLimit = 30;
   private _reconnectAttempt = 0;
   private _reconnectTimeout: any = null;
   private _supportedProtocols: string[] = Object.values(
