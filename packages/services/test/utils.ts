@@ -154,7 +154,7 @@ function getRandomInt(min: number, max: number) {
 /**
  * Socket class test rig.
  */
-class SocketTester implements IService {
+export class SocketTester implements IService {
   /**
    * Create a new request and socket tester.
    */

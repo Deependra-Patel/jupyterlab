@@ -30,7 +30,7 @@ import { PageConfig } from '@jupyterlab/coreutils';
 // Stub for requirejs.
 declare let requirejs: any;
 
-const KERNEL_INFO_TIMEOUT = 10000;
+const KERNEL_INFO_TIMEOUT = 3000;
 const RESTARTING_KERNEL_SESSION = '_RESTARTING_';
 const STARTING_KERNEL_SESSION = '';
 
@@ -1839,7 +1839,7 @@ export class KernelConnection implements Kernel.IKernelConnection {
   private _kernelAPIClient: Kernel.IKernelAPIClient;
   private _kernelSpecAPIClient: KernelSpec.IKernelSpecAPIClient;
   private _username = '';
-  private _reconnectLimit = 30;
+  private _reconnectLimit = 7;
   private _reconnectAttempt = 0;
   private _reconnectTimeout: any = null;
   private _supportedProtocols: string[] = Object.values(
